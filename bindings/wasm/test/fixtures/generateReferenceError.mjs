@@ -1,8 +1,8 @@
 // A comment, just to move the stack trace around a little bit.
 
-const dostuff =
+export const dostuff =
     () => {
       fail();
     }
-
+// Fail on load/import.
 export default dostuff();
