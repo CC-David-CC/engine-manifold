@@ -190,6 +190,13 @@ EMSCRIPTEN_BINDINGS(whatever) {
       .function("volume", &Manifold::Volume)
       .function("surfaceArea", &Manifold::SurfaceArea)
       .function("minGap", &Manifold::MinGap)
+      // Diagnostic values only; no blanket connected-solid/Join certificate.
+      .function("nativeIs2ManifoldDiagnostic", &Manifold::NativeIs2ManifoldDiagnostic)
+      .function("nativeIsSelfIntersectingDiagnostic",
+                &Manifold::NativeIsSelfIntersectingDiagnostic)
+      .function("nativeEpsilonDiagnostic", &Manifold::NativeEpsilonDiagnostic)
+      .function("nativeBoundaryMinGapDiagnostic",
+                &Manifold::NativeBoundaryMinGapDiagnostic)
       .function("calculateCurvature", &Manifold::CalculateCurvature)
       .function("_CalculateNormals", &Manifold::CalculateNormals)
       .function("originalID", &Manifold::OriginalID)

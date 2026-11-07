@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include <algorithm>
+#include <cmath>
+#include <limits>
 
 #include "boolean3.h"
 #include "csg_tree.h"
@@ -957,6 +959,29 @@ Manifold Manifold::Hull(const std::vector<Manifold>& manifolds) {
   std::shared_ptr<Impl> impl = std::make_shared<Impl>();
   impl->Hull(VecView<const vec3>(vertPos));
   return Manifold(std::make_shared<CsgLeafNode>(impl));
+}
+
+// Additive observations over the original native double geometry. No mesh
+// export/import, coordinate change, tolerance adjustment or topology repair.
+// NativeIsSelfIntersectingDiagnostic is deliberately NOT a self-contact proof:
+// the retained native predicate skips epsilon-close vertices and marginal hits.
+bool Manifold::NativeIs2ManifoldDiagnostic() const {
+  return GetCsgLeafNode().GetImpl()->Is2Manifold();
+}
+bool Manifold::NativeIsSelfIntersectingDiagnostic() const {
+  return GetCsgLeafNode().GetImpl()->IsSelfIntersecting();
+}
+double Manifold::NativeEpsilonDiagnostic() const {
+  return GetCsgLeafNode().GetImpl()->epsilon_;
+}
+double Manifold::NativeBoundaryMinGapDiagnostic(const Manifold& other,
+                                                double searchLength) const {
+  if (IsEmpty() || other.IsEmpty() || !std::isfinite(searchLength) ||
+      searchLength <= 0.0) {
+    return std::numeric_limits<double>::quiet_NaN();
+  }
+  return GetCsgLeafNode().GetImpl()->MinGap(*other.GetCsgLeafNode().GetImpl(),
+                                         searchLength);
 }
 
 /**

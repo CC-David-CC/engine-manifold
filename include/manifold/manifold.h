@@ -351,6 +351,15 @@ class Manifold {
   double SurfaceArea() const;
   double Volume() const;
   double MinGap(const Manifold& other, double searchLength) const;
+  // Read-only native diagnostics. These are not a connected-solid/Join proof.
+  // The self-intersection diagnostic retains its existing epsilon limitations.
+  bool NativeIs2ManifoldDiagnostic() const;
+  bool NativeIsSelfIntersectingDiagnostic() const;
+  double NativeEpsilonDiagnostic() const;
+  // Triangle-boundary distance, without MinGap's solid-intersection shortcut.
+  // Empty boundaries and nonpositive/nonfinite search bounds return NaN.
+  double NativeBoundaryMinGapDiagnostic(const Manifold& other,
+                                        double searchLength) const;
   ///@}
 
   /** @name Mesh ID
