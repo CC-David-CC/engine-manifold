@@ -1,7 +1,9 @@
 // Offline recorded arithmetic/limits checker; no fresh native execution.
 import fs from 'node:fs';import assert from 'node:assert/strict';
-const dir=new URL('./evidence/',import.meta.url);
-const read=name=>JSON.parse(fs.readFileSync(new URL(name,dir)));
+import path from 'node:path';
+const dir=process.env.CODI_MANIFOLD_EVIDENCE_DIR;
+assert(dir, 'CODI_MANIFOLD_EVIDENCE_DIR required');
+const read=name=>JSON.parse(fs.readFileSync(path.join(dir,name)));
 const observed=read('observed-r2.json'), boundary=read('same-boundary.json'), preservation=read('preservation.json');
 assert.equal(observed.status,'PASS_DIAGNOSTICS');assert.equal(boundary.status,'PASS_OBSERVATIONS');assert.equal(preservation.status,'PASS');
 assert.equal(observed.retainedWrappers,0);assert.equal(boundary.retainedWrappers,0);

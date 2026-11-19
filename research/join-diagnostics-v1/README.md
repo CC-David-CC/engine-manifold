@@ -39,11 +39,28 @@ Like existing readers, calls can materialize lazy CSG. No app resource admission
 
 ## Reproduce
 
-`build.sh`: separate R730 build, retained Emscripten5.0.2, pinned Clipper2 `46f639177fe418f9689e8ddb74f08a870c71f5b4`, fully disconnected local dependency source. No shared app cache write. `run-preservation.sh` links only a test executable against the same archive. Binaries stay outside Git.
+Provide Emscripten 5.0.2 and the pinned Clipper2 checkout
+`46f639177fe418f9689e8ddb74f08a870c71f5b4` under a directory with
+`emsdk/` and `clipper2/` subdirectories. Set these paths from the checkout:
 
-Experimental JS remains `cd2031fd75cbbc812b550dd228f95b9fd666ae4da6557f840e3d3ed4cbed268b`: registrations live in WASM. New experimental WASM: `636b7dc8e03a31a355ce5d7ec5a2bf3bb449eb7ea1c0aba5819bfb467d46ca0f`. App WASM remains `7bb5f8ee10fcafdab78799b1e5dd2cdc7c282ea0bf8e7939c43f3ad34b823e3d`.
+```sh
+export CODI_MANIFOLD_PREREQUISITES=/path/to/prerequisites
+export CODI_MANIFOLD_BUILD_DIR=/path/to/manifold-diagnostics-build
+bash research/join-diagnostics-v1/build.sh
+bash research/join-diagnostics-v1/run-preservation.sh
 
-Set CODI_MANIFOLD_GLUE to a byte-identical .mjs copy of emitted glue, CODI_MANIFOLD_WASM to emitted WASM, CODI_NATIVE_PINS to evidence/pins.json, CODI_OBSERVATION to a new path; run probe.mjs or same-boundary.mjs with Node. `node check.mjs` checks committed arithmetic/observations offline. Full source/archive/runtime hashes: evidence/pins.json and receipt.json.
+export CODI_MANIFOLD_GLUE="$CODI_MANIFOLD_BUILD_DIR/manifold.mjs"
+export CODI_MANIFOLD_WASM="$CODI_MANIFOLD_BUILD_DIR/bindings/wasm/manifold.wasm"
+export CODI_NATIVE_PINS="$CODI_MANIFOLD_BUILD_DIR/pins.json"
+cp "$CODI_MANIFOLD_BUILD_DIR/bindings/wasm/manifold.js" "$CODI_MANIFOLD_GLUE"
+CODI_OBSERVATION="$CODI_MANIFOLD_BUILD_DIR/observed-r2.json" node research/join-diagnostics-v1/probe.mjs
+CODI_OBSERVATION="$CODI_MANIFOLD_BUILD_DIR/same-boundary.json" node research/join-diagnostics-v1/same-boundary.mjs
+CODI_MANIFOLD_EVIDENCE_DIR="$CODI_MANIFOLD_BUILD_DIR" node research/join-diagnostics-v1/check.mjs
+```
+
+Use a fresh output directory to keep each run's receipts. The build is disconnected
+from dependency downloads and writes the artifact hashes to the output directory.
+The public history maps the original upstream base to its source-only commit.
 
 Preserved harness failures: first probe required nonnegative epsilon on empty (native sentinel -1); first C++ probe used ambiguous vec3(0) instead of vec3(0.0). Neither changed native product behavior or loosened nonempty geometry checks. Exact failed source/log/receipt retained in evidence/before/.
 
